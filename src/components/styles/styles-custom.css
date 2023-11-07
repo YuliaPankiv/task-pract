@@ -1,0 +1,17 @@
+input[type='text'],
+input[type='number'] {
+  width: 400px;
+}
+
+label {
+  margin-top: 1rem;
+  flex-direction: column;
+}
+
+button[type='submit'] {
+  margin-top: 1rem;
+}
+li{  
+
+    list-style: none;
+}

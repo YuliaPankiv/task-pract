@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
-import ContactForm from './ContactForm/ContactForm';
 import { nanoid } from 'nanoid';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { ContactList } from './ContactList/ContactList';
 import { Filter } from './Filter/Filter';
+import ContactForm from './ContactForm/ContactForm';
+import { Container } from './App.styled';
 class App extends Component {
   state = {
     contacts: [
@@ -16,26 +19,28 @@ class App extends Component {
 
   onSubmitForm = props => {
     const { contacts } = this.state;
-
+    debugger;
     const id = nanoid();
     const newContact = { ...props, id };
 
     if (contacts.length === 0) {
       return this.setState({ contacts: [newContact] });
     }
-
-    const isExists = Boolean(
-      contacts.find(
-        contact =>
-          contact.name.toLocaleLowerCase() ===
-          newContact.name.toLocaleLowerCase()
-      )
-    );
-    !isExists
-      ? this.setState(prevState => ({
-          contacts: [...prevState.contacts, newContact],
-        }))
-      : alert(`The contact with the name "${newContact.name}" already exists`);
+    this.state.contacts.find(({ name }) => name === newContact.name)
+      ? toast.warn(`🦄 The contact with the name "${newContact.name}" already exists`, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "light",
+          })
+      : this.setState(prevState => {
+          return {
+            contacts: [...prevState.contacts, newContact],
+          };
+        });
   };
 
   changeFilter = e => {
@@ -49,26 +54,32 @@ class App extends Component {
       name.toLocaleLowerCase().includes(filterValue)
     );
   };
-  deleteContacts=(idContact)=>{
-    const { contacts } = this.state
+  deleteContacts = idContact => {
+    const { contacts } = this.state;
     console.log(idContact);
-    return this.setState({contacts: contacts.filter(({ id }) => id!==idContact)})
-  }
+    return this.setState({
+      contacts: contacts.filter(({ id }) => id !== idContact),
+    });
+  };
   render() {
     const { contacts, filter } = this.state;
     const visibleContacts = this.getFilteredContact();
-    const totalContactCount=contacts.length;
+    const totalContactCount = contacts.length;
     return (
-      <>
+      <Container>
         <ContactForm onSubmit={this.onSubmitForm} />
-        <><p>all contacts: {totalContactCount}</p></>
+        <ToastContainer />
+        <h4>All contacts: {totalContactCount}</h4>
         {contacts.length > 0 && (
           <Filter value={filter} onChange={this.changeFilter} />
         )}
         {visibleContacts.length > 0 && (
-          <ContactList contacts={visibleContacts} deleteContacts={this.deleteContacts} />
+          <ContactList
+            contacts={visibleContacts}
+            deleteContacts={this.deleteContacts}
+          />
         )}
-      </>
+      </Container>
     );
   }
 }
